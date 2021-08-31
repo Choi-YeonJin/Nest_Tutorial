@@ -1,17 +1,24 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { INestApplication } from '@nestjs/common';
+import { INestApplication, ValidationPipe } from '@nestjs/common';
 import * as request from 'supertest';
 import { AppModule } from './../src/app.module';
 
 describe('AppController (e2e)', () => {
   let app: INestApplication;
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
 
     app = moduleFixture.createNestApplication();
+    app.useGlobalPipes(
+      new ValidationPipe({
+        whitelist: true, // 아무 decorator도 없는 어떠한 property의 object를 거릅니다.
+        forbidNonWhitelisted: true, // Request 자체를 막는 방법
+        transform: true, // 유저들이 보낸거를 우리가 원하는 실제 타입으로 변경해줌
+      }),
+    );
     await app.init();
   });
 
@@ -34,5 +41,13 @@ describe('AppController (e2e)', () => {
     it('/ (DELETE)', () => {
       return request(app.getHttpServer()).delete('/movies').expect(404);
     });
+  });
+
+  describe('/movies/:id', () => {
+    it('GET 200', () => {
+      return request(app.getHttpServer()).get('/movies/1').expect(200);
+    });
+    it.todo('DELETE');
+    it.todo('PATCH');
   });
 });
