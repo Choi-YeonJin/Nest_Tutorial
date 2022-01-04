@@ -10,4 +10,8 @@ export class CreateMovieDTO {
   @IsOptional()
   @IsString({ each: true })
   readonly genres: string[];
+
+  @IsOptional()
+  @IsString()
+  readonly phoneNumber: string[];
 }
